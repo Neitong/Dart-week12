@@ -11,6 +11,14 @@ class GroceryList extends StatefulWidget {
 }
 
 class _GroceryListState extends State<GroceryList> {
+  late List<Grocery> _groceryItems;
+
+  @override
+  void initState() {
+    super.initState();
+    _groceryItems = List.from(dummyGroceryItems);
+  }
+
   void onCreate() {
     // TODO-4 - Navigate to the form screen using the Navigator push
     Navigator.push( 
@@ -18,19 +26,25 @@ class _GroceryListState extends State<GroceryList> {
       MaterialPageRoute(
         builder: (context) => const NewItem(),
       ),
-    );
+    ).then((newGrocery) {
+      if (newGrocery != null) {
+        setState(() {
+          _groceryItems.add(newGrocery);
+        });
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     Widget content = const Center(child: Text('No items added yet.'));
 
-    if (dummyGroceryItems.isNotEmpty) {
+    if (_groceryItems.isNotEmpty) {
       //  1 - Display groceries with an Item builder and  LIst Tile
       content = ListView.builder(
-        itemCount: dummyGroceryItems.length,
+        itemCount: _groceryItems.length,
         itemBuilder: (context, index) =>
-            GroceryTile(grocery: dummyGroceryItems[index]),
+            GroceryTile(grocery: _groceryItems[index]),
       );
     }
 

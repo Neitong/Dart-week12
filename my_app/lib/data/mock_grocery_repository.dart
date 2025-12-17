@@ -16,4 +16,10 @@ final dummyGroceryItems = [
       name: 'Beef Steak',
       quantity: 1,
       category: GroceryCategory.meat),
+  const Grocery(
+      id: 'd',
+      name: 'Eggs',
+      quantity: 12,
+      category: GroceryCategory.dairy
+  )
 ];

@@ -30,6 +30,7 @@ class _NewItemState extends State<NewItem> {
     // Initialize intputs with default settings
     _nameController.text = defautName;
     _quantityController.text = defaultQuantity.toString();
+    _selectedCategory = defaultCategory;
   }
 
   @override
@@ -39,6 +40,7 @@ class _NewItemState extends State<NewItem> {
     // Dispose the controlers
     _nameController.dispose();
     _quantityController.dispose();
+    _selectedCategory = defaultCategory;
   }
 
   void onReset() {
@@ -47,7 +49,7 @@ class _NewItemState extends State<NewItem> {
     _quantityController.text = defaultQuantity.toString();
     _selectedCategory = defaultCategory;
     setState(() {
-        
+
     });
 
   }
@@ -60,13 +62,15 @@ class _NewItemState extends State<NewItem> {
       // Show error message
       return;
     }
+
     final newGrocery = Grocery(
       id: DateTime.now().toString(),
       name: enteredName,
       quantity: enteredQuantity,
       category: _selectedCategory,
     );
-    Navigator.of(context).pop(newGrocery);
+    Navigator.pop(context, newGrocery);
+
   }
 
   @override
@@ -96,7 +100,14 @@ class _NewItemState extends State<NewItem> {
                 Expanded(
                   child: DropdownButtonFormField<GroceryCategory>(
                     initialValue: _selectedCategory,
-                    items: [  ],
+                    //TODO - Populate the dropdown with all categories
+                    items: [ 
+                      for (final category in GroceryCategory.values)
+                        DropdownMenuItem(
+                          value: category,
+                          child: Text(category.label),
+                        )
+                     ],
                     onChanged: (value) {
                       if (value != null) {
                         setState(() {
