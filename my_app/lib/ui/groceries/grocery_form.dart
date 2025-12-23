@@ -12,6 +12,7 @@ class NewItem extends StatefulWidget {
 }
 
 class _NewItemState extends State<NewItem> {
+  final _formKey = GlobalKey<FormState>();
 
   // Default settings
   static const defautName = "New grocery";
@@ -30,7 +31,7 @@ class _NewItemState extends State<NewItem> {
     // Initialize intputs with default settings
     _nameController.text = defautName;
     _quantityController.text = defaultQuantity.toString();
-    _selectedCategory = defaultCategory;
+    // _selectedCategory = defaultCategory;
   }
 
   @override
@@ -40,37 +41,55 @@ class _NewItemState extends State<NewItem> {
     // Dispose the controlers
     _nameController.dispose();
     _quantityController.dispose();
-    _selectedCategory = defaultCategory;
+    // _selectedCategory = defaultCategory;
   }
 
   void onReset() {
-    // Will be implemented later - Reset all fields to the initial values
-    _nameController.text = defautName;
-    _quantityController.text = defaultQuantity.toString();
-    _selectedCategory = defaultCategory;
     setState(() {
-
+      _nameController.text = defautName;
+      _quantityController.text = defaultQuantity.toString();
+      _selectedCategory = defaultCategory;
     });
-
   }
 
   void onAdd() {
     // Will be implemented later - Create and return the new grocery
-    final enteredName = _nameController.text;
-    final enteredQuantity = int.tryParse(_quantityController.text);
-    if (enteredName.isEmpty || enteredQuantity == null || enteredQuantity <= 0) {
-      // Show error message
-      return;
+    if(_formKey.currentState!.validate()) {
+        final name = _nameController.text;
+        final quantity = int.tryParse(_quantityController.text.trim()) ?? 0;
+
+      if (name.isEmpty || quantity <= 0) {
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please enter a valid name')),
+        );
+        return;
+      }
+
+      final newGrocery = Grocery(
+        id: DateTime.now().toString(),
+        name: name,
+        quantity: quantity,
+        category: _selectedCategory,
+      );
+
+      Navigator.pop(context, newGrocery);
+
     }
 
-    final newGrocery = Grocery(
-      id: DateTime.now().toString(),
-      name: enteredName,
-      quantity: enteredQuantity,
-      category: _selectedCategory,
-    );
-    Navigator.pop(context, newGrocery);
+    return;
+  }
 
+  String? validateName(String? value) {
+    if (value == null  || value.isEmpty) {
+      return "The name needs to be filled";
+    }
+
+    if (value.length < 10  || value.length > 50) {
+      return "Enter a name from 10 to 50 characters";
+    }
+
+    return null; //  valid
   }
 
   @override
@@ -101,13 +120,12 @@ class _NewItemState extends State<NewItem> {
                   child: DropdownButtonFormField<GroceryCategory>(
                     initialValue: _selectedCategory,
                     //TODO - Populate the dropdown with all categories
-                    items: [ 
-                      for (final category in GroceryCategory.values)
-                        DropdownMenuItem(
-                          value: category,
-                          child: Text(category.label),
-                        )
-                     ],
+                    items: GroceryCategory.values.map((category) {
+                      return DropdownMenuItem(
+                        value: category,
+                        child: Text(category.name.toUpperCase()),
+                      );
+                    }).toList(),
                     onChanged: (value) {
                       if (value != null) {
                         setState(() {
